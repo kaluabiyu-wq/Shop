@@ -1,4 +1,4 @@
-const currency = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+const currency = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'ETB' });
 
 export const money = (n) => currency.format(n ?? 0);
 
