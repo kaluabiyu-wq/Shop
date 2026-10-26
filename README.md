@@ -104,15 +104,5 @@ From then on the app applies migrations automatically at startup.
 | GET    | /api/orders/all             | admin    |
 | PATCH  | /api/orders/{id}/status     | admin    |
 
-## Before you deploy
-- Replace `Jwt:Key` with a long random secret, supplied via environment variable
-  (`Jwt__Key`) or user-secrets, never committed.
-- Change the seeded admin password, or remove the seeder.
-- Set `Cors:Origins` to your real frontend URL and serve over HTTPS.
-- The token is stored in `localStorage` for simplicity; for higher security consider
-  httpOnly cookies.
-- Payments are not implemented. "Place order" creates a `Pending` order.
-
-## Ideas to extend
-Stripe payments, image uploads, product reviews, refresh tokens, unit/integration tests
-(xUnit + Testcontainers), and a Dockerfile for the API.
+### Written By
+Kalu Abiyu
