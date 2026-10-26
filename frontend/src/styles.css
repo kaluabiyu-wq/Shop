@@ -1,14 +1,13 @@
 :root {
-  --bg: #FAF6EE;
-  --surface: #FFFDF8;
-  --text: #2B2118;
-  --muted: #6F6558;
-  --border: #E7DECB;
-  --accent: #1F5C45;
-  --accent-hover: #164434;
+  --bg: #FFFFFF;
+  --surface: #FFFFFF;
+  --text: #111111;
+  --muted: #666666;
+  --border: #E3E3E3;
+  --accent: #D4142A;
+  --accent-hover: #A60F20;
   --on-accent: #ffffff;
-  --gold: #C8962E;
-  --danger: #C0392B;
+  --danger: #9B1C1C;
   --ok: #2F7D4F;
   --warn: #D98A00;
   --radius: 10px;
@@ -16,15 +15,15 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #17130F;
-    --surface: #211B15;
-    --text: #F3EBDD;
-    --muted: #B3A792;
-    --border: #3A3027;
-    --accent: #5FB38A;
-    --accent-hover: #7CC9A3;
-    --on-accent: #10261C;
-    --gold: #D9AC4A;
+    --bg: #0D0D0D;
+    --surface: #171717;
+    --text: #F5F5F5;
+    --muted: #A3A3A3;
+    --border: #2C2C2C;
+    --accent: #D92D43;
+    --accent-hover: #F05468;
+    --on-accent: #ffffff;
+    --danger: #F26D6D;
   }
 }
 
@@ -146,7 +145,7 @@ label { display: flex; flex-direction: column; gap: 4px; font-size: 0.9rem; font
 .status { padding: 2px 10px; border-radius: 999px; font-size: 0.78rem; font-weight: 600; color: #fff; background: var(--muted); }
 .status-pending { background: var(--warn); }
 .status-paid, .status-delivered { background: var(--ok); }
-.status-shipped { background: var(--gold); }
+.status-shipped { background: #3D3D3D; }
 .status-cancelled { background: var(--danger); }
 
 /* ---------- Admin ---------- */

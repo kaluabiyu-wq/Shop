@@ -104,5 +104,5 @@ From then on the app applies migrations automatically at startup.
 | GET    | /api/orders/all             | admin    |
 | PATCH  | /api/orders/{id}/status     | admin    |
 
-### Written By
+## Author
 Kalu Abiyu
