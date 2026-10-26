@@ -1,26 +1,30 @@
 :root {
-  --bg: #f5f6f8;
-  --surface: #ffffff;
-  --text: #1c2030;
-  --muted: #6b7280;
-  --border: #e2e5ec;
-  --accent: #3b5bdb;
-  --accent-hover: #2f4ac0;
-  --danger: #e03131;
-  --ok: #2f9e44;
-  --warn: #f08c00;
+  --bg: #FAF6EE;
+  --surface: #FFFDF8;
+  --text: #2B2118;
+  --muted: #6F6558;
+  --border: #E7DECB;
+  --accent: #1F5C45;
+  --accent-hover: #164434;
+  --on-accent: #ffffff;
+  --gold: #C8962E;
+  --danger: #C0392B;
+  --ok: #2F7D4F;
+  --warn: #D98A00;
   --radius: 10px;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #13151a;
-    --surface: #1c1f27;
-    --text: #e8eaf0;
-    --muted: #9aa1b0;
-    --border: #2b2f3a;
-    --accent: #748ffc;
-    --accent-hover: #91a7ff;
+    --bg: #17130F;
+    --surface: #211B15;
+    --text: #F3EBDD;
+    --muted: #B3A792;
+    --border: #3A3027;
+    --accent: #5FB38A;
+    --accent-hover: #7CC9A3;
+    --on-accent: #10261C;
+    --gold: #D9AC4A;
   }
 }
 
@@ -71,7 +75,7 @@ label { display: flex; flex-direction: column; gap: 4px; font-size: 0.9rem; font
   border: 1px solid transparent;
   border-radius: 8px;
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
   cursor: pointer;
   text-align: center;
   transition: background 0.15s;
@@ -97,11 +101,11 @@ label { display: flex; flex-direction: column; gap: 4px; font-size: 0.9rem; font
 .nav-links { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
 .nav-links a { color: var(--text); }
 .nav-links a.active { color: var(--accent); font-weight: 600; }
-.nav-links a.btn { color: #fff; }
+.nav-links a.btn { color: var(--on-accent); }
 .nav-user { color: var(--muted); font-size: 0.9rem; }
 .cart-count {
   display: inline-block; min-width: 20px; margin-left: 6px; padding: 0 6px;
-  background: var(--accent); color: #fff; border-radius: 999px; font-size: 0.75rem; text-align: center;
+  background: var(--accent); color: var(--on-accent); border-radius: 999px; font-size: 0.75rem; text-align: center;
 }
 
 /* ---------- Products ---------- */
@@ -142,7 +146,7 @@ label { display: flex; flex-direction: column; gap: 4px; font-size: 0.9rem; font
 .status { padding: 2px 10px; border-radius: 999px; font-size: 0.78rem; font-weight: 600; color: #fff; background: var(--muted); }
 .status-pending { background: var(--warn); }
 .status-paid, .status-delivered { background: var(--ok); }
-.status-shipped { background: var(--accent); }
+.status-shipped { background: var(--gold); }
 .status-cancelled { background: var(--danger); }
 
 /* ---------- Admin ---------- */
