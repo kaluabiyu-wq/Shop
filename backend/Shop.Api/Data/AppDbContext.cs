@@ -44,7 +44,16 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         {
             e.Property(o => o.Status).HasConversion<string>().HasMaxLength(20);
             e.Property(o => o.Total).HasPrecision(12, 2);
-            e.Property(o => o.ShippingAddress).HasMaxLength(300).IsRequired();
+            e.Property(o => o.ShippingAddress).HasMaxLength(1000).IsRequired();
+            e.Property(o => o.DeliveryMethod).HasMaxLength(20).IsRequired();
+            e.Property(o => o.PhoneNumber).HasMaxLength(30).IsRequired();
+            e.Property(o => o.Subcity).HasMaxLength(100);
+            e.Property(o => o.Woreda).HasMaxLength(100);
+            e.Property(o => o.Landmark).HasMaxLength(200);
+            e.Property(o => o.Directions).HasMaxLength(500);
+            e.Property(o => o.MapUrl).HasMaxLength(1000);
+            e.Property(o => o.RegionalCity).HasMaxLength(100);
+            e.Property(o => o.DeliveryFee).HasPrecision(10, 2);
             e.HasOne(o => o.User)
                 .WithMany(u => u.Orders)
                 .HasForeignKey(o => o.UserId)

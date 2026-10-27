@@ -60,6 +60,15 @@ public class Order
     public OrderStatus Status { get; set; } = OrderStatus.Pending;
     public decimal Total { get; set; }
     public string ShippingAddress { get; set; } = string.Empty;
+    public string DeliveryMethod { get; set; } = "Delivery";
+    public string PhoneNumber { get; set; } = string.Empty;
+    public string? Subcity { get; set; }
+    public string? Woreda { get; set; }
+    public string? Landmark { get; set; }
+    public string? Directions { get; set; }
+    public string? MapUrl { get; set; }
+    public string? RegionalCity { get; set; }
+    public decimal DeliveryFee { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public List<OrderItem> Items { get; set; } = new();

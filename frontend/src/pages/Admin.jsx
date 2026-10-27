@@ -230,6 +230,7 @@ function OrdersAdmin() {
               <th>Customer</th>
               <th>Date</th>
               <th>Items</th>
+              <th>Delivery / contact</th>
               <th>Total</th>
               <th>Status</th>
               <th />
@@ -242,6 +243,13 @@ function OrdersAdmin() {
                 <td>{o.customerEmail}</td>
                 <td>{formatDate(o.createdAt)}</td>
                 <td>{o.items.reduce((n, i) => n + i.quantity, 0)}</td>
+                <td className="delivery-admin-cell">
+                  <strong>{o.deliveryMethod === 'Pickup' ? 'Shop pickup' : `${o.subcity || o.regionalCity || ''}${o.woreda ? ` · Woreda ${o.woreda}` : ''}`}</strong>
+                  <div>{o.phoneNumber}</div>
+                  {o.landmark && <div>{o.landmark}</div>}
+                  {o.mapUrl && <a href={o.mapUrl} target="_blank" rel="noreferrer">Open map pin ↗</a>}
+                  {o.deliveryFee > 0 && <div className="muted small">Fee: {money(o.deliveryFee)}</div>}
+                </td>
                 <td>{money(o.total)}</td>
                 <td>
                   {o.status === 'Cancelled' ? (

@@ -45,10 +45,61 @@ public class OrdersController(AppDbContext db) : ControllerBase
                     detail: $"Only {product.Stock} of '{product.Name}' left in stock.");
         }
 
+        var method = req.DeliveryMethod.Trim();
+        var phone = req.PhoneNumber.Trim();
+        var mapUrl = req.MapUrl?.Trim();
+        // Map URL is optional. Validate it only when the customer supplied a value.
+        if (!string.IsNullOrWhiteSpace(mapUrl) &&
+            (!Uri.TryCreate(mapUrl, UriKind.Absolute, out var parsedMapUrl) ||
+             (parsedMapUrl.Scheme != Uri.UriSchemeHttp && parsedMapUrl.Scheme != Uri.UriSchemeHttps)))
+            return Problem(statusCode: StatusCodes.Status400BadRequest,
+                detail: "The Google Maps link must be a valid http or https URL.");
+
+        if (string.IsNullOrWhiteSpace(phone))
+            return Problem(statusCode: StatusCodes.Status400BadRequest, detail: "A reachable phone number is required.");
+
+        decimal deliveryFee = 0m;
+        string shippingAddress;
+        if (method == "Pickup")
+        {
+            shippingAddress = "Pickup from shop";
+        }
+        else
+        {
+            if (method != "Delivery")
+                return Problem(statusCode: StatusCodes.Status400BadRequest, detail: "Choose delivery or pickup.");
+
+            var isAddis = !string.IsNullOrWhiteSpace(req.Subcity);
+            if (isAddis)
+            {
+                if (string.IsNullOrWhiteSpace(req.Woreda) || string.IsNullOrWhiteSpace(req.Landmark))
+                    return Problem(statusCode: StatusCodes.Status400BadRequest, detail: "For Addis Ababa delivery, select a subcity and enter the woreda and landmark.");
+                deliveryFee = DeliveryPricing.AddisFee(req.Subcity!);
+                shippingAddress = $"Addis Ababa, {req.Subcity}, Woreda {req.Woreda}, Landmark: {req.Landmark}";
+            }
+            else
+            {
+                if (string.IsNullOrWhiteSpace(req.RegionalCity) || string.IsNullOrWhiteSpace(req.Landmark))
+                    return Problem(statusCode: StatusCodes.Status400BadRequest, detail: "Choose a regional city and enter a landmark.");
+                deliveryFee = DeliveryPricing.RegionalFee;
+                shippingAddress = $"{req.RegionalCity}, Landmark: {req.Landmark}";
+            }
+            if (!string.IsNullOrWhiteSpace(req.Directions)) shippingAddress += $". Directions: {req.Directions.Trim()}";
+        }
+
         var order = new Order
         {
             UserId = CurrentUserId,
-            ShippingAddress = req.ShippingAddress.Trim(),
+            ShippingAddress = shippingAddress,
+            DeliveryMethod = method,
+            PhoneNumber = phone,
+            Subcity = method == "Delivery" ? req.Subcity?.Trim() : null,
+            Woreda = method == "Delivery" ? req.Woreda?.Trim() : null,
+            Landmark = method == "Delivery" ? req.Landmark?.Trim() : null,
+            Directions = method == "Delivery" ? req.Directions?.Trim() : null,
+            MapUrl = method == "Delivery" ? mapUrl : null,
+            RegionalCity = method == "Delivery" ? req.RegionalCity?.Trim() : null,
+            DeliveryFee = deliveryFee,
             Status = OrderStatus.Pending
         };
 
@@ -64,7 +115,7 @@ public class OrdersController(AppDbContext db) : ControllerBase
             });
         }
 
-        order.Total = order.Items.Sum(i => i.UnitPrice * i.Quantity);
+        order.Total = order.Items.Sum(i => i.UnitPrice * i.Quantity) + order.DeliveryFee;
         db.Orders.Add(order);
 
         try
@@ -194,5 +245,30 @@ public class OrdersController(AppDbContext db) : ControllerBase
         o.User?.Email,
         o.Items
             .Select(i => new OrderItemDto(i.ProductId, i.Product?.Name ?? "Unknown product", i.Quantity, i.UnitPrice))
-            .ToList());
+            .ToList(),
+        o.DeliveryMethod,
+        o.PhoneNumber,
+        o.Subcity,
+        o.Woreda,
+        o.Landmark,
+        o.Directions,
+        o.MapUrl,
+        o.RegionalCity,
+        o.DeliveryFee);
+}
+
+
+internal static class DeliveryPricing
+{
+    // Default ETB rates. Keep the checkout display in src/pages/Cart.jsx in sync.
+    private static readonly Dictionary<string, decimal> AddisRates = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["Addis Ketema"] = 120m, ["Akaky Kaliti"] = 180m, ["Arada"] = 120m,
+        ["Bole"] = 150m, ["Gullele"] = 150m, ["Kirkos"] = 120m,
+        ["Kolfe Keranio"] = 180m, ["Lideta"] = 120m, ["Nifas Silk-Lafto"] = 180m,
+        ["Yeka"] = 150m, ["Lemi Kura"] = 180m
+    };
+
+    public const decimal RegionalFee = 350m;
+    public static decimal AddisFee(string subcity) => AddisRates.TryGetValue(subcity.Trim(), out var fee) ? fee : 180m;
 }

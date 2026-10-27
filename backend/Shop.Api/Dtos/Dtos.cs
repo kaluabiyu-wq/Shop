@@ -76,8 +76,21 @@ public class CheckoutItem
 
 public class CheckoutRequest
 {
-    [Required, MinLength(5), MaxLength(300)]
+    [MaxLength(1000)]
     public string ShippingAddress { get; set; } = string.Empty;
+
+    [Required, RegularExpression("^(Delivery|Pickup)$")]
+    public string DeliveryMethod { get; set; } = "Delivery";
+
+    [Required, Phone, MaxLength(30)]
+    public string PhoneNumber { get; set; } = string.Empty;
+
+    [MaxLength(100)] public string? Subcity { get; set; }
+    [MaxLength(100)] public string? Woreda { get; set; }
+    [MaxLength(200)] public string? Landmark { get; set; }
+    [MaxLength(500)] public string? Directions { get; set; }
+    [MaxLength(1000)] public string? MapUrl { get; set; }
+    [MaxLength(100)] public string? RegionalCity { get; set; }
 
     [Required, MinLength(1)]
     public List<CheckoutItem> Items { get; set; } = new();
@@ -98,4 +111,13 @@ public record OrderDto(
     string ShippingAddress,
     DateTime CreatedAt,
     string? CustomerEmail,
-    List<OrderItemDto> Items);
+    List<OrderItemDto> Items,
+    string DeliveryMethod,
+    string PhoneNumber,
+    string? Subcity,
+    string? Woreda,
+    string? Landmark,
+    string? Directions,
+    string? MapUrl,
+    string? RegionalCity,
+    decimal DeliveryFee);

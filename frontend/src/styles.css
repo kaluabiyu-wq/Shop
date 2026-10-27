@@ -173,3 +173,13 @@ td.actions { text-align: right; }
   .form-grid { grid-template-columns: 1fr; }
   .span-2 { grid-column: auto; }
 }
+/* ---------- Delivery checkout ---------- */
+.delivery-options { border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin: 0; }
+.delivery-options legend { font-size: .9rem; font-weight: 600; padding: 0 4px; }
+.delivery-options .choice { display: flex; flex-direction: row; align-items: center; gap: 8px; margin: 6px 0; cursor: pointer; }
+.delivery-options input[type="radio"] { width: auto; accent-color: var(--accent); }
+.summary-row.total-row { border-top: 1px solid var(--border); padding-top: 12px; margin-top: 4px; font-size: 1.2rem; }
+.order-delivery { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 12px 0; margin: 12px 0; }
+.order-delivery p { margin: 4px 0; overflow-wrap: anywhere; }
+.delivery-admin-cell { white-space: normal; min-width: 220px; }
+.delivery-admin-cell div { margin-top: 3px; }

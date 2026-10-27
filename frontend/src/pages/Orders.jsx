@@ -50,8 +50,14 @@ export default function Orders() {
                 </li>
               ))}
             </ul>
+            <div className="order-delivery">
+              <div><strong>{o.deliveryMethod === 'Pickup' ? 'Pickup from shop' : 'Delivery address'}</strong><p>{o.shippingAddress}</p></div>
+              <div><strong>Courier contact</strong><p><a href={`tel:${o.phoneNumber}`}>{o.phoneNumber}</a></p></div>
+              {o.mapUrl && <a className="btn btn-ghost btn-sm" href={o.mapUrl} target="_blank" rel="noreferrer">Open map pin ↗</a>}
+              {o.deliveryMethod !== 'Pickup' && <p className="muted small">Delivery fee: {money(o.deliveryFee || 0)}</p>}
+            </div>
             <footer className="order-footer">
-              <span className="muted small">Ship to: {o.shippingAddress}</span>
+              <span className="muted small">{o.deliveryMethod === 'Pickup' ? 'Collection: shop pickup' : `Landmark: ${o.landmark || '—'}`}</span>
               <div className="row">
                 <strong>{money(o.total)}</strong>
                 {o.status === 'Pending' && (
