@@ -30,6 +30,8 @@ function ProductsAdmin() {
   const [editingId, setEditingId] = useState(null);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [bulkPercent, setBulkPercent] = useState('');
+  const [bulkMessage, setBulkMessage] = useState('');
 
   const load = useCallback(async () => {
     try {
@@ -89,6 +91,18 @@ function ProductsAdmin() {
     }
   }
 
+  async function applyBulkPriceChange() {
+    const percent = Number(bulkPercent);
+    if (!Number.isFinite(percent) || percent <= -100 || percent > 1000) { setBulkMessage('Enter a percentage greater than -100 and no more than 1000.'); return; }
+    if (!window.confirm(`Apply ${percent > 0 ? '+' : ''}${percent}% to all ${items.length} loaded products?`)) return;
+    setBusy(true); setBulkMessage('');
+    try {
+      for (const product of items) await api.products.update(product.id, { name: product.name, description: product.description, price: Math.round(product.price * (1 + percent / 100) * 100) / 100, stock: product.stock, imageUrl: product.imageUrl || null, categoryId: product.categoryId });
+      setBulkMessage(`Updated prices for ${items.length} products.`); await load();
+    } catch (err) { setBulkMessage(`Bulk update stopped: ${err.message}. Some earlier products may already have been updated.`); await load(); }
+    finally { setBusy(false); }
+  }
+
   async function remove(p) {
     if (!window.confirm(`Delete "${p.name}"?`)) return;
     setError('');
@@ -121,7 +135,7 @@ function ProductsAdmin() {
             </select>
           </label>
           <label>
-            Price (USD)
+            Price (ETB)
             <input required type="number" min="0.01" step="0.01" value={form.price} onChange={set('price')} />
           </label>
           <label>
@@ -150,6 +164,12 @@ function ProductsAdmin() {
         </div>
       </form>
 
+      <section className="admin-form stack">
+        <h2>Bulk price adjustment (ETB)</h2>
+        <p className="muted small">Apply a percentage increase or decrease to the products currently loaded (up to 50). Back up prices first; this updates products sequentially.</p>
+        <div className="row"><input type="number" step="0.1" min="-99.9" max="1000" value={bulkPercent} onChange={(e) => setBulkPercent(e.target.value)} placeholder="e.g. 15 for +15%" /><button type="button" className="btn" disabled={busy || !items.length || bulkPercent === ''} onClick={applyBulkPriceChange}>Apply to loaded products</button></div>
+        {bulkMessage && <p role="status">{bulkMessage}</p>}
+      </section>
       <div className="table-wrap">
         <table>
           <thead>
@@ -248,6 +268,9 @@ function OrdersAdmin() {
                   <div>{o.phoneNumber}</div>
                   {o.landmark && <div>{o.landmark}</div>}
                   {o.mapUrl && <a href={o.mapUrl} target="_blank" rel="noreferrer">Open map pin ↗</a>}
+                  <div>Payment: {o.paymentMethod} {o.paymentTransactionId ? `· Ref ${o.paymentTransactionId}` : ''}</div>
+                  {o.paymentProofDataUrl && <a href={o.paymentProofDataUrl} target="_blank" rel="noreferrer">View payment screenshot ↗</a>}
+                  <div className="muted small">{o.paymentVerified ? 'Payment verified' : 'Payment not yet verified'}</div>
                   {o.deliveryFee > 0 && <div className="muted small">Fee: {money(o.deliveryFee)}</div>}
                 </td>
                 <td>{money(o.total)}</td>

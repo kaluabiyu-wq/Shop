@@ -92,6 +92,11 @@ public class CheckoutRequest
     [MaxLength(1000)] public string? MapUrl { get; set; }
     [MaxLength(100)] public string? RegionalCity { get; set; }
 
+    [Required, RegularExpression("^(Telebirr|CBE Birr|Bank Transfer)$")]
+    public string PaymentMethod { get; set; } = "Telebirr";
+    [MaxLength(100)] public string? PaymentTransactionId { get; set; }
+    [MaxLength(7000000)] public string? PaymentProofDataUrl { get; set; }
+
     [Required, MinLength(1)]
     public List<CheckoutItem> Items { get; set; } = new();
 }
@@ -120,4 +125,8 @@ public record OrderDto(
     string? Directions,
     string? MapUrl,
     string? RegionalCity,
-    decimal DeliveryFee);
+    decimal DeliveryFee,
+    string PaymentMethod,
+    string? PaymentTransactionId,
+    string? PaymentProofDataUrl,
+    bool PaymentVerified);

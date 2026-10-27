@@ -54,6 +54,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.Property(o => o.MapUrl).HasMaxLength(1000);
             e.Property(o => o.RegionalCity).HasMaxLength(100);
             e.Property(o => o.DeliveryFee).HasPrecision(10, 2);
+            e.Property(o => o.PaymentMethod).HasMaxLength(30).IsRequired();
+            e.Property(o => o.PaymentTransactionId).HasMaxLength(100);
             e.HasOne(o => o.User)
                 .WithMany(u => u.Orders)
                 .HasForeignKey(o => o.UserId)

@@ -23,6 +23,9 @@ export default function Cart() {
   const [landmark, setLandmark] = useState('');
   const [directions, setDirections] = useState('');
   const [mapUrl, setMapUrl] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('Telebirr');
+  const [paymentTransactionId, setPaymentTransactionId] = useState('');
+  const [paymentProofDataUrl, setPaymentProofDataUrl] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const deliveryFee = useMemo(() => deliveryMethod === 'Pickup' ? 0 : areaType === 'Addis' ? (ADDIS_FEES[subcity] ?? 180) : REGIONAL_FEE, [deliveryMethod, areaType, subcity]);
@@ -31,7 +34,7 @@ export default function Cart() {
     e.preventDefault(); setBusy(true); setError('');
     try {
       await api.orders.checkout({
-        deliveryMethod, phoneNumber,
+        deliveryMethod, phoneNumber, paymentMethod, paymentTransactionId: paymentTransactionId || null, paymentProofDataUrl: paymentProofDataUrl || null,
         shippingAddress: deliveryMethod === 'Pickup' ? 'Pickup from shop' : `${areaType === 'Addis' ? `Addis Ababa, ${subcity}, Woreda ${woreda}` : regionalCity}, ${landmark}`,
         subcity: deliveryMethod === 'Delivery' && areaType === 'Addis' ? subcity : null,
         woreda: deliveryMethod === 'Delivery' && areaType === 'Addis' ? woreda : null,
@@ -78,6 +81,12 @@ export default function Cart() {
             <label>Google Maps link (optional) <input type="url" maxLength={1000} placeholder="Paste your shared Google Maps link" value={mapUrl} onChange={(e) => setMapUrl(e.target.value)} /></label>
             <p className="muted small">In Google Maps, tap your location or drop a pin, then choose Share and paste the link above.</p>
           </>}
+          <fieldset className="delivery-options"><legend>Manual payment (order stays pending until admin confirms)</legend>
+            <label>Payment method <select required value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}><option>Telebirr</option><option>CBE Birr</option><option>Bank Transfer</option></select></label>
+            <label>Transaction ID (optional if screenshot supplied) <input maxLength={100} value={paymentTransactionId} onChange={(e) => setPaymentTransactionId(e.target.value)} placeholder="Enter payment reference" /></label>
+            <label>Payment screenshot (optional if transaction ID supplied) <input type="file" accept="image/png,image/jpeg,image/webp" onChange={(e) => { const file = e.target.files?.[0]; if (!file) { setPaymentProofDataUrl(''); return; } if (file.size > 5 * 1024 * 1024) { setError('Payment screenshot must be under 5 MB.'); e.target.value = ''; return; } const reader = new FileReader(); reader.onload = () => setPaymentProofDataUrl(String(reader.result)); reader.readAsDataURL(file); }} /></label>
+            <p className="muted small">Pay using the shop’s official payment details, then submit the transaction ID or screenshot. Admin must verify payment before marking the order Paid.</p>
+          </fieldset>
           <div className="summary-row"><span>Delivery fee</span><strong>{deliveryFee === 0 ? 'Free' : money(deliveryFee)}</strong></div>
           <div className="summary-row total-row"><span>Total</span><strong>{money(total + deliveryFee)}</strong></div>
           {error && <div className="alert alert-error">{error}</div>}

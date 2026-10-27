@@ -45,6 +45,13 @@ public class OrdersController(AppDbContext db) : ControllerBase
                     detail: $"Only {product.Stock} of '{product.Name}' left in stock.");
         }
 
+        if (!string.IsNullOrWhiteSpace(req.PaymentProofDataUrl) &&
+            (req.PaymentProofDataUrl.Length > 6_500_000 || !(req.PaymentProofDataUrl.StartsWith("data:image/png;base64,") || req.PaymentProofDataUrl.StartsWith("data:image/jpeg;base64,") || req.PaymentProofDataUrl.StartsWith("data:image/webp;base64,"))))
+            return Problem(statusCode: StatusCodes.Status400BadRequest, detail: "Payment proof must be a PNG, JPG, or WebP image under 5 MB.");
+
+        if (string.IsNullOrWhiteSpace(req.PaymentTransactionId) && string.IsNullOrWhiteSpace(req.PaymentProofDataUrl))
+            return Problem(statusCode: StatusCodes.Status400BadRequest, detail: "Enter a payment transaction ID or upload a payment screenshot.");
+
         var method = req.DeliveryMethod.Trim();
         var phone = req.PhoneNumber.Trim();
         var mapUrl = req.MapUrl?.Trim();
@@ -100,6 +107,9 @@ public class OrdersController(AppDbContext db) : ControllerBase
             MapUrl = method == "Delivery" ? mapUrl : null,
             RegionalCity = method == "Delivery" ? req.RegionalCity?.Trim() : null,
             DeliveryFee = deliveryFee,
+            PaymentMethod = req.PaymentMethod,
+            PaymentTransactionId = req.PaymentTransactionId?.Trim(),
+            PaymentProofDataUrl = req.PaymentProofDataUrl,
             Status = OrderStatus.Pending
         };
 
@@ -230,6 +240,7 @@ public class OrdersController(AppDbContext db) : ControllerBase
             return Problem(statusCode: StatusCodes.Status409Conflict, detail: "Cancelled orders cannot be changed.");
 
         order.Status = status;
+        if (status == OrderStatus.Paid) order.PaymentVerified = true;
         await db.SaveChangesAsync();
 
         var updated = await OrdersWithDetails().AsNoTracking().FirstAsync(o => o.Id == id);
@@ -254,7 +265,11 @@ public class OrdersController(AppDbContext db) : ControllerBase
         o.Directions,
         o.MapUrl,
         o.RegionalCity,
-        o.DeliveryFee);
+        o.DeliveryFee,
+        o.PaymentMethod,
+        o.PaymentTransactionId,
+        o.PaymentProofDataUrl,
+        o.PaymentVerified);
 }
 
 

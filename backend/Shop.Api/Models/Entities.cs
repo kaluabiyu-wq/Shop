@@ -69,6 +69,10 @@ public class Order
     public string? MapUrl { get; set; }
     public string? RegionalCity { get; set; }
     public decimal DeliveryFee { get; set; }
+    public string PaymentMethod { get; set; } = "Telebirr";
+    public string? PaymentTransactionId { get; set; }
+    public string? PaymentProofDataUrl { get; set; }
+    public bool PaymentVerified { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public List<OrderItem> Items { get; set; } = new();

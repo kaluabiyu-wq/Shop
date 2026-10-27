@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;500;600;700&display=swap');
 :root {
   --bg: #FFFFFF;
   --surface: #FFFFFF;
@@ -183,3 +184,7 @@ td.actions { text-align: right; }
 .order-delivery p { margin: 4px 0; overflow-wrap: anywhere; }
 .delivery-admin-cell { white-space: normal; min-width: 220px; }
 .delivery-admin-cell div { margin-top: 3px; }
+
+.ethiopic-font, .ethiopic-font body, .ethiopic-font button, .ethiopic-font input, .ethiopic-font select, .ethiopic-font textarea { font-family: "Noto Sans Ethiopic", sans-serif; }
+.language-switch { display: inline-flex; align-items: center; gap: 5px; }
+.language-switch select { max-width: 110px; }

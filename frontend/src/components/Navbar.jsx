@@ -1,11 +1,14 @@
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useCart } from '../context/CartContext.jsx';
+import { useState } from 'react';
 
 export default function Navbar() {
   const { user, isAdmin, logout } = useAuth();
   const { count } = useCart();
   const navigate = useNavigate();
+  const [language, setLanguage] = useState(() => localStorage.getItem('shop_language') || 'en');
+  function changeLanguage(next) { setLanguage(next); localStorage.setItem('shop_language', next); document.documentElement.lang = next; document.documentElement.classList.toggle('ethiopic-font', next === 'am'); }
 
   function handleLogout() {
     logout();
@@ -19,13 +22,14 @@ export default function Navbar() {
           Shop
         </Link>
         <nav className="nav-links">
+          <label className="language-switch" aria-label="Language"><span className="small">Language</span><select value={language} onChange={(e) => changeLanguage(e.target.value)}><option value="en">English</option><option value="am">አማርኛ</option></select></label>
           <NavLink to="/" end>
-            Products
+            {language === 'am' ? 'ምርቶች' : 'Products'}
           </NavLink>
-          {user && <NavLink to="/orders">My orders</NavLink>}
-          {isAdmin && <NavLink to="/admin">Admin</NavLink>}
+          {user && <NavLink to="/orders">{language === 'am' ? 'ትዕዛዞቼ' : 'My orders'}</NavLink>}
+          {isAdmin && <NavLink to="/admin">{language === 'am' ? 'አስተዳዳሪ' : 'Admin'}</NavLink>}
           <NavLink to="/cart">
-            Cart
+            {language === 'am' ? 'ጋሪ' : 'Cart'}
             {count > 0 && <span className="cart-count">{count}</span>}
           </NavLink>
           {user ? (
