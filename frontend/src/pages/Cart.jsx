@@ -12,6 +12,8 @@ const REGIONAL_FEE = 350;
 
 export default function Cart() {
   const { items, setQuantity, remove, clear, total } = useCart();
+  const [stockChecking, setStockChecking] = useState({});
+  const [stockErrors, setStockErrors] = useState({});
   const { user } = useAuth();
   const navigate = useNavigate();
   const [deliveryMethod, setDeliveryMethod] = useState('Delivery');
@@ -48,15 +50,29 @@ export default function Cart() {
     } catch (err) { setError(err.message); } finally { setBusy(false); }
   }
 
-  if (items.length === 0) return <div className="container"><h1>Your cart</h1><p className="muted">Your cart is empty.</p><Link to="/" className="btn">Browse products</Link></div>;
+  async function changeQuantity(item, requested) {
+    const quantity = Math.max(1, Math.min(Number(requested) || 1, item.stock));
+    setStockChecking((prev) => ({ ...prev, [item.productId]: true }));
+    setStockErrors((prev) => ({ ...prev, [item.productId]: '' }));
+    try {
+      const fresh = await api.products.get(item.productId);
+      if (fresh.stock < 1) { remove(item.productId); setStockErrors((prev) => ({ ...prev, [item.productId]: 'This item is now out of stock and was removed.' })); return; }
+      if (quantity > fresh.stock) setStockErrors((prev) => ({ ...prev, [item.productId]: `Stock updated. Maximum available is ${fresh.stock}.` }));
+      setQuantity(item.productId, Math.min(quantity, fresh.stock));
+    } catch (err) {
+      setStockErrors((prev) => ({ ...prev, [item.productId]: `Could not verify stock: ${err.message}. Try again.` }));
+    } finally { setStockChecking((prev) => ({ ...prev, [item.productId]: false })); }
+  }
+
+  if (items.length === 0) return <div className="container empty-state"><span className="empty-icon">🛍</span><h1>Your cart is empty</h1><p className="muted">Looks like you haven’t found your favorites yet.</p><Link to="/" className="btn">Browse products</Link></div>;
 
   return <div className="container">
-    <h1>Your cart</h1>
+    <div className="cart-title-row"><div><p className="eyebrow">YOUR SELECTION</p><h1>Your cart</h1><p className="muted">{items.reduce((n, i) => n + i.quantity, 0)} item(s) in your cart</p></div><button className="btn btn-ghost" onClick={() => { if (window.confirm('Remove all items from your cart?')) clear(); }}>Clear cart</button></div>
     <div className="cart-layout">
       <div className="cart-items">{items.map((i) => <div className="cart-row" key={i.productId}>
-        <img src={i.imageUrl || ''} alt="" className="cart-thumb" />
-        <div className="cart-info"><Link to={`/products/${i.productId}`}>{i.name}</Link><span className="muted small">{money(i.price)} each</span></div>
-        <input type="number" min="1" max={i.stock} value={i.quantity} onChange={(e) => setQuantity(i.productId, Number(e.target.value) || 1)} aria-label={`Quantity for ${i.name}`} className="qty-input" />
+        <Link to={`/products/${i.productId}`}><img src={i.imageUrl || ''} alt={i.name} className="cart-thumb" /></Link>
+        <div className="cart-info"><Link to={`/products/${i.productId}`}>{i.name}</Link><span className="muted small">{money(i.price)} each</span><span className="muted small">{i.stock} available</span></div>
+        <div className="cart-quantity"><div className="quantity-control"><button type="button" disabled={i.quantity <= 1 || stockChecking[i.productId]} aria-label={`Decrease ${i.name}`} onClick={() => changeQuantity(i, i.quantity - 1)}>−</button><span>{stockChecking[i.productId] ? '…' : i.quantity}</span><button type="button" disabled={i.quantity >= i.stock || stockChecking[i.productId]} aria-label={`Increase ${i.name}`} onClick={() => changeQuantity(i, i.quantity + 1)}>+</button></div>{stockErrors[i.productId] && <span className="stock-error">{stockErrors[i.productId]}</span>}</div>
         <strong className="cart-line-total">{money(i.price * i.quantity)}</strong>
         <button className="btn btn-ghost" onClick={() => remove(i.productId)}>Remove</button>
       </div>)}</div>
