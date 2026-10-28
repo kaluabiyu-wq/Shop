@@ -29,9 +29,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
         b.Entity<Product>(e =>
         {
+            e.ToTable(t => t.HasCheckConstraint("CK_Products_SalePrice_LessThan_Price", "\"SalePrice\" IS NULL OR \"SalePrice\" < \"Price\""));
             e.Property(p => p.Name).HasMaxLength(200).IsRequired();
             e.Property(p => p.Description).HasMaxLength(2000);
             e.Property(p => p.Price).HasPrecision(10, 2);
+            e.Property(p => p.SalePrice).HasPrecision(10, 2);
             e.Property(p => p.ImageUrl).HasMaxLength(500);
             e.Property(p => p.Version).IsRowVersion();
             e.HasOne(p => p.Category)

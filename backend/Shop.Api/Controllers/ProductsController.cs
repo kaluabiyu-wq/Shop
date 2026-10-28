@@ -35,8 +35,8 @@ public class ProductsController(AppDbContext db) : ControllerBase
 
         query = sort switch
         {
-            "price_asc" => query.OrderBy(p => p.Price),
-            "price_desc" => query.OrderByDescending(p => p.Price),
+            "price_asc" => query.OrderBy(p => (p.SalePrice.HasValue && p.SalePrice.Value < p.Price ? p.SalePrice.Value : p.Price)),
+            "price_desc" => query.OrderByDescending(p => (p.SalePrice.HasValue && p.SalePrice.Value < p.Price ? p.SalePrice.Value : p.Price)),
             "name" => query.OrderBy(p => p.Name),
             _ => query.OrderByDescending(p => p.CreatedAt).ThenBy(p => p.Id)
         };
@@ -47,7 +47,7 @@ public class ProductsController(AppDbContext db) : ControllerBase
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .Select(p => new ProductDto(
-                p.Id, p.Name, p.Description, p.Price, p.Stock, p.ImageUrl, p.CategoryId, p.Category!.Name))
+                p.Id, p.Name, p.Description, p.Price, p.SalePrice, p.Stock, p.ImageUrl, p.CategoryId, p.Category!.Name))
             .ToListAsync();
 
         return Ok(new PagedResult<ProductDto>(items, page, pageSize, total));
@@ -60,7 +60,7 @@ public class ProductsController(AppDbContext db) : ControllerBase
             .AsNoTracking()
             .Where(p => p.Id == id)
             .Select(p => new ProductDto(
-                p.Id, p.Name, p.Description, p.Price, p.Stock, p.ImageUrl, p.CategoryId, p.Category!.Name))
+                p.Id, p.Name, p.Description, p.Price, p.SalePrice, p.Stock, p.ImageUrl, p.CategoryId, p.Category!.Name))
             .FirstOrDefaultAsync();
 
         return product is null ? NotFound() : Ok(product);
@@ -74,11 +74,15 @@ public class ProductsController(AppDbContext db) : ControllerBase
         if (category is null)
             return Problem(statusCode: StatusCodes.Status400BadRequest, detail: "Category does not exist.");
 
+        if (req.SalePrice.HasValue && req.SalePrice.Value >= req.Price)
+            return Problem(statusCode: StatusCodes.Status400BadRequest, detail: "Sale price must be lower than the regular price.");
+
         var product = new Product
         {
             Name = req.Name.Trim(),
             Description = req.Description?.Trim() ?? string.Empty,
             Price = req.Price,
+            SalePrice = req.SalePrice,
             Stock = req.Stock,
             ImageUrl = string.IsNullOrWhiteSpace(req.ImageUrl) ? null : req.ImageUrl.Trim(),
             CategoryId = category.Id
@@ -103,7 +107,11 @@ public class ProductsController(AppDbContext db) : ControllerBase
 
         product.Name = req.Name.Trim();
         product.Description = req.Description?.Trim() ?? string.Empty;
+        if (req.SalePrice.HasValue && req.SalePrice.Value >= req.Price)
+            return Problem(statusCode: StatusCodes.Status400BadRequest, detail: "Sale price must be lower than the regular price.");
+
         product.Price = req.Price;
+        product.SalePrice = req.SalePrice;
         product.Stock = req.Stock;
         product.ImageUrl = string.IsNullOrWhiteSpace(req.ImageUrl) ? null : req.ImageUrl.Trim();
         product.CategoryId = category.Id;
@@ -137,5 +145,5 @@ public class ProductsController(AppDbContext db) : ControllerBase
     }
 
     private static ProductDto ToDto(Product p, string categoryName) =>
-        new(p.Id, p.Name, p.Description, p.Price, p.Stock, p.ImageUrl, p.CategoryId, categoryName);
+        new(p.Id, p.Name, p.Description, p.Price, p.SalePrice, p.Stock, p.ImageUrl, p.CategoryId, categoryName);
 }

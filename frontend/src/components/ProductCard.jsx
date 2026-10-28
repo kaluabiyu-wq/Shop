@@ -5,10 +5,14 @@ import { money } from '../utils.js';
 export default function ProductCard({ product }) {
   const { add } = useCart();
   const soldOut = product.stock === 0;
+  const onSale = product.salePrice != null && Number(product.salePrice) < Number(product.price);
+  const discount = onSale ? Math.round((1 - Number(product.salePrice) / Number(product.price)) * 100) : 0;
 
   return (
     <article className="product-card">
       <Link to={`/products/${product.id}`} className="product-image">
+        {onSale && <span className="sale-badge">-{discount}%</span>}
+        {soldOut && <span className="stock-badge">Out of stock</span>}
         {product.imageUrl ? (
           <img src={product.imageUrl} alt={product.name} loading="lazy" />
         ) : (
@@ -21,7 +25,10 @@ export default function ProductCard({ product }) {
           <Link to={`/products/${product.id}`}>{product.name}</Link>
         </h3>
         <div className="product-footer">
-          <strong>{money(product.price)}</strong>
+          <div className="product-prices">
+            <strong className={onSale ? 'sale-price' : ''}>{money(onSale ? product.salePrice : product.price)}</strong>
+            {onSale && <del className="regular-price">{money(product.price)}</del>}
+          </div>
           <button className="btn btn-sm" disabled={soldOut} onClick={() => add(product, 1)}>
             {soldOut ? 'Sold out' : 'Add to cart'}
           </button>

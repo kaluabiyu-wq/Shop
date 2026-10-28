@@ -210,3 +210,35 @@ td.actions { text-align: right; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
 }
+
+/* Sale pricing, stock alerts, delivery policy, and cart improvements */
+.product-image { position: relative; }
+.sale-badge, .stock-badge { display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; padding: 5px 9px; font-size: .75rem; font-weight: 800; line-height: 1.2; }
+.sale-badge { background: #b42332; color: #fff; }
+.product-image .sale-badge, .product-image .stock-badge { position: absolute; z-index: 1; top: 12px; left: 12px; }
+.product-image .stock-badge { top: auto; bottom: 12px; background: rgba(35, 42, 38, .88); color: #fff; }
+.product-prices { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-width: 0; }
+.sale-price { color: #b42332 !important; }
+.regular-price { color: var(--muted); font-size: .86rem; font-weight: 500; }
+.detail-price-block { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.detail-price-block .price { margin-bottom: 12px; }
+.detail-regular-price { margin-top: -4px; margin-bottom: 12px; }
+.detail-discount { margin-top: -4px; margin-bottom: 12px; }
+.stock-low { color: #a65300; font-weight: 700; }
+.product-policy { margin-top: 22px; padding: 17px; border: 1px solid var(--border); border-radius: 13px; background: var(--surface-soft); }
+.product-policy h3 { font-size: 1rem; margin: 0 0 7px; }
+.product-policy h3:not(:first-child) { margin-top: 16px; }
+.product-policy p { margin: 5px 0; }
+.shipping-progress { border: 1px solid var(--border); background: var(--surface-soft); padding: 14px; border-radius: 12px; margin: 8px 0 18px; }
+.shipping-progress > strong { font-size: .92rem; }
+.shipping-progress p { margin: 5px 0 10px; }
+.shipping-progress-track { height: 8px; border-radius: 99px; background: var(--border); overflow: hidden; margin-top: 10px; }
+.shipping-progress-track span { display: block; height: 100%; border-radius: inherit; background: var(--accent); transition: width .2s ease; }
+.cart-actions { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.saved-section { margin-top: 30px; display: flex; flex-direction: column; gap: 12px; }
+.saved-section h2 { margin-bottom: 4px; }
+.cart-validation-row:empty { display: none; }
+@media (max-width: 760px) {
+  .cart-actions { justify-content: flex-start; }
+  .shipping-progress { margin-top: 4px; }
+}

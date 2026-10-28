@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import * as api from '../api.js';
 import { formatDate, money } from '../utils.js';
 
-const EMPTY = { name: '', description: '', price: '', stock: '', imageUrl: '', categoryId: '' };
+const EMPTY = { name: '', description: '', price: '', salePrice: '', stock: '', imageUrl: '', categoryId: '' };
 const STATUSES = ['Pending', 'Paid', 'Shipped', 'Delivered'];
 
 export default function Admin() {
@@ -55,6 +55,7 @@ function ProductsAdmin() {
       name: p.name,
       description: p.description,
       price: String(p.price),
+      salePrice: p.salePrice == null ? '' : String(p.salePrice),
       stock: String(p.stock),
       imageUrl: p.imageUrl || '',
       categoryId: String(p.categoryId),
@@ -75,6 +76,7 @@ function ProductsAdmin() {
       name: form.name,
       description: form.description,
       price: Number(form.price),
+      salePrice: form.salePrice === '' ? null : Number(form.salePrice),
       stock: Number(form.stock),
       imageUrl: form.imageUrl || null,
       categoryId: Number(form.categoryId),
@@ -97,7 +99,7 @@ function ProductsAdmin() {
     if (!window.confirm(`Apply ${percent > 0 ? '+' : ''}${percent}% to all ${items.length} loaded products?`)) return;
     setBusy(true); setBulkMessage('');
     try {
-      for (const product of items) await api.products.update(product.id, { name: product.name, description: product.description, price: Math.round(product.price * (1 + percent / 100) * 100) / 100, stock: product.stock, imageUrl: product.imageUrl || null, categoryId: product.categoryId });
+      for (const product of items) { const nextPrice = Math.round(product.price * (1 + percent / 100) * 100) / 100; await api.products.update(product.id, { name: product.name, description: product.description, price: nextPrice, stock: product.stock, imageUrl: product.imageUrl || null, categoryId: product.categoryId, salePrice: product.salePrice != null && product.salePrice < nextPrice ? product.salePrice : null }); }
       setBulkMessage(`Updated prices for ${items.length} products.`); await load();
     } catch (err) { setBulkMessage(`Bulk update stopped: ${err.message}. Some earlier products may already have been updated.`); await load(); }
     finally { setBusy(false); }
@@ -139,6 +141,10 @@ function ProductsAdmin() {
             <input required type="number" min="0.01" step="0.01" value={form.price} onChange={set('price')} />
           </label>
           <label>
+            Sale price (ETB, optional)
+            <input type="number" min="0.01" step="0.01" max={form.price || undefined} value={form.salePrice} onChange={set('salePrice')} placeholder="Leave blank for no sale" />
+          </label>
+          <label>
             Stock
             <input required type="number" min="0" step="1" value={form.stock} onChange={set('stock')} />
           </label>
@@ -177,6 +183,7 @@ function ProductsAdmin() {
               <th>Name</th>
               <th>Category</th>
               <th>Price</th>
+              <th>Sale price</th>
               <th>Stock</th>
               <th />
             </tr>
@@ -187,6 +194,7 @@ function ProductsAdmin() {
                 <td>{p.name}</td>
                 <td>{p.categoryName}</td>
                 <td>{money(p.price)}</td>
+                <td>{p.salePrice == null ? '—' : money(p.salePrice)}</td>
                 <td>{p.stock}</td>
                 <td className="actions">
                   <button className="btn btn-ghost btn-sm" onClick={() => startEdit(p)}>

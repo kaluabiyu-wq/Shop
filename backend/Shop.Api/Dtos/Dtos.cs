@@ -36,6 +36,7 @@ public record ProductDto(
     string Name,
     string Description,
     decimal Price,
+    decimal? SalePrice,
     int Stock,
     string? ImageUrl,
     int CategoryId,
@@ -51,6 +52,9 @@ public class ProductRequest
 
     [Range(0.01, 1_000_000)]
     public decimal Price { get; set; }
+
+    [Range(0.01, 1_000_000)]
+    public decimal? SalePrice { get; set; }
 
     [Range(0, 1_000_000)]
     public int Stock { get; set; }

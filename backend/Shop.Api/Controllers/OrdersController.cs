@@ -94,6 +94,10 @@ public class OrdersController(AppDbContext db) : ControllerBase
             if (!string.IsNullOrWhiteSpace(req.Directions)) shippingAddress += $". Directions: {req.Directions.Trim()}";
         }
 
+        var subtotal = lines.Sum(line => EffectivePrice(products[line.ProductId]) * line.Quantity);
+        if (method == "Delivery" && subtotal >= DeliveryPricing.FreeShippingThreshold)
+            deliveryFee = 0m;
+
         var order = new Order
         {
             UserId = CurrentUserId,
@@ -121,7 +125,7 @@ public class OrdersController(AppDbContext db) : ControllerBase
             {
                 ProductId = product.Id,
                 Quantity = line.Quantity,
-                UnitPrice = product.Price // price is locked in at purchase time
+                UnitPrice = EffectivePrice(product) // server-authoritative sale price is locked in at purchase time
             });
         }
 
@@ -247,6 +251,11 @@ public class OrdersController(AppDbContext db) : ControllerBase
         return Ok(ToDto(updated));
     }
 
+    private static decimal EffectivePrice(Product product) =>
+        product.SalePrice.HasValue && product.SalePrice.Value > 0 && product.SalePrice.Value < product.Price
+            ? product.SalePrice.Value
+            : product.Price;
+
     private static OrderDto ToDto(Order o) => new(
         o.Id,
         o.Status.ToString(),
@@ -285,5 +294,6 @@ internal static class DeliveryPricing
     };
 
     public const decimal RegionalFee = 350m;
+    public const decimal FreeShippingThreshold = 3000m;
     public static decimal AddisFee(string subcity) => AddisRates.TryGetValue(subcity.Trim(), out var fee) ? fee : 180m;
 }
