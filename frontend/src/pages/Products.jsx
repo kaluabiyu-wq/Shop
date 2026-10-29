@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import * as api from '../api.js';
 import ProductCard from '../components/ProductCard.jsx';
+import RecentlyViewed from '../components/RecentlyViewed.jsx';
 
 const PAGE_SIZE = 8;
 
@@ -34,14 +35,14 @@ export default function Products() {
     setLoading(true);
     setError('');
     api.products
-      .list({ q: query, categoryId, sort, page, pageSize: PAGE_SIZE })
+      .list({ q: query, categoryId, sort, page, pageSize: PAGE_SIZE, inStockOnly })
       .then((res) => !cancelled && setData(res))
       .catch((e) => !cancelled && setError(e.message))
       .finally(() => !cancelled && setLoading(false));
     return () => {
       cancelled = true;
     };
-  }, [query, categoryId, sort, page]);
+  }, [query, categoryId, sort, page, inStockOnly]);
 
   const totalPages = Math.max(1, Math.ceil(data.totalCount / PAGE_SIZE));
 
@@ -90,22 +91,26 @@ export default function Products() {
           <option value="name">Name</option>
         </select>
       </div>
+      <div className="catalog-tools">
+        <label className="stock-filter"><input type="checkbox" checked={inStockOnly} onChange={(e) => { setInStockOnly(e.target.checked); setPage(1); }} /> In stock only</label>
+        {(search || categoryId || sort !== 'newest' || inStockOnly) && <button className="btn btn-ghost btn-sm" onClick={() => { setSearch(''); setQuery(''); setCategoryId(''); setSort('newest'); setInStockOnly(false); setPage(1); }}>Clear filters</button>}
+      </div>
 
       {error && <div className="alert alert-error">{error}</div>}
 
       {loading ? (
         <p className="muted">Loading products…</p>
-      ) : data.items.filter((p) => !inStockOnly || Number(p.stock) > 0).length === 0 ? (
+      ) : data.items.length === 0 ? (
         <p className="muted">No products match your search.</p>
       ) : (
         <div className="grid">
-          {data.items.filter((p) => !inStockOnly || Number(p.stock) > 0).map((p) => (
+          {data.items.map((p) => (
             <ProductCard key={p.id} product={p} />
           ))}
         </div>
       )}
 
-      {!loading && data.items.length > 0 && <p className="muted small results-note">Showing {data.items.length} of {data.totalCount} products · Prices and availability may change.</p>}
+      {!loading && data.items.length > 0 && <p className="muted small results-note">Showing {data.items.length} of {data.totalCount} products{inStockOnly ? ' in stock' : ''} · Prices and availability may change.</p>}
 
       {totalPages > 1 && (
         <div className="pagination">
@@ -124,6 +129,7 @@ export default function Products() {
           </button>
         </div>
       )}
+      <RecentlyViewed />
     </div>
   );
 }

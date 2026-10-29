@@ -30,6 +30,7 @@ export default function Navbar() {
           </NavLink>
           {user && <NavLink to="/orders">{language === 'am' ? 'ትዕዛዞቼ' : 'My orders'}</NavLink>}
           {isAdmin && <NavLink to="/admin">{language === 'am' ? 'አስተዳዳሪ' : 'Admin'}</NavLink>}
+          <NavLink to="/help">{language === 'am' ? 'እገዛ' : 'Help'}</NavLink>
           <NavLink to="/wishlist">{language === 'am' ? 'የተቀመጡ' : 'Saved'}{wishlist.items.length > 0 && <span className="cart-count">{wishlist.items.length}</span>}</NavLink>
           <NavLink to="/cart">
             {language === 'am' ? 'ጋሪ' : 'Cart'}

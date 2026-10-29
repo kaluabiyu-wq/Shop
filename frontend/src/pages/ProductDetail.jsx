@@ -2,11 +2,15 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import * as api from '../api.js';
 import { useCart } from '../context/CartContext.jsx';
+import { useWishlist } from '../context/WishlistContext.jsx';
 import { money } from '../utils.js';
+import { rememberProduct } from '../components/RecentlyViewed.jsx';
+import RecentlyViewed from '../components/RecentlyViewed.jsx';
 
 export default function ProductDetail() {
   const { id } = useParams();
   const { add } = useCart();
+  const wishlist = useWishlist();
   const [product, setProduct] = useState(null);
   const [qty, setQty] = useState(1);
   const [error, setError] = useState('');
@@ -17,7 +21,7 @@ export default function ProductDetail() {
     setError('');
     api.products
       .get(id)
-      .then(setProduct)
+      .then((item) => { setProduct(item); rememberProduct(item.id); })
       .catch((e) => setError(e.status === 404 ? 'Product not found.' : e.message));
   }, [id]);
 
@@ -59,6 +63,7 @@ export default function ProductDetail() {
             {onSale && <><del className="regular-price detail-regular-price">{money(product.price)}</del><span className="sale-badge detail-discount">Save {discount}%</span></>}
           </div>
           <p>{product.description}</p>
+          <button type="button" className={`btn btn-ghost detail-save ${wishlist.has(product.id) ? 'is-saved' : ''}`} onClick={() => wishlist.toggle(product)} aria-pressed={wishlist.has(product.id)}>{wishlist.has(product.id) ? '♥ Saved to wishlist' : '♡ Save to wishlist'}</button>
           <p className={soldOut ? 'text-danger' : product.stock <= 3 ? 'stock-low' : 'muted'}>
             {soldOut ? 'Out of stock' : product.stock <= 3 ? `Only ${product.stock} left in stock` : `${product.stock} in stock`}
           </p>
@@ -90,6 +95,7 @@ export default function ProductDetail() {
           )}
         </div>
       </div>
+      <RecentlyViewed excludeId={product.id} />
     </div>
   );
 }

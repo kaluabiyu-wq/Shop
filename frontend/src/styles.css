@@ -262,3 +262,27 @@ td.actions { text-align: right; }
 .empty-icon { font-size:3.5rem; color:var(--accent); line-height:1.2; }
 .empty-state p { margin:0 auto 20px; }
 @media (max-width:640px) { .shop-hero { padding:25px 20px; } .hero-mark { width:64px; } .catalog-heading { align-items:flex-start; } .stock-filter { white-space:normal; } }
+
+/* Store essentials: stock filtering, recently viewed, help and trust footer */
+.catalog-tools { display:flex; align-items:center; gap:12px; margin:-10px 0 22px; flex-wrap:wrap; }
+.stock-filter { display:inline-flex; align-items:center; flex-direction:row; gap:9px; padding:8px 12px; border:1px solid var(--border); border-radius:10px; background:var(--surface); cursor:pointer; }
+.stock-filter input { width:17px; height:17px; margin:0; accent-color:var(--accent); }
+.recently-viewed { margin-top:52px; padding-top:28px; border-top:1px solid var(--border); }
+.recently-viewed .catalog-heading a { font-size:.9rem; font-weight:700; }
+.detail-save { margin:0 0 16px; }
+.detail-save.is-saved { color:var(--danger); border-color:#efc9ce; }
+.help-page { max-width:780px !important; }
+.help-page > .eyebrow { display:block; margin-bottom:10px; }
+.faq-list { display:grid; gap:10px; margin:26px 0; }
+.faq-item { border:1px solid var(--border); border-radius:12px; background:var(--surface); padding:0 16px; }
+.faq-item summary { cursor:pointer; padding:15px 0; font-weight:700; }
+.faq-item summary::marker { color:var(--accent); }
+.faq-item p { margin:0 0 16px; color:var(--muted); }
+.help-contact { padding:22px; border:1px solid var(--border); border-radius:16px; background:var(--surface); }
+.help-contact h2 { margin-bottom:8px; }
+.help-contact .btn { margin:4px 0 10px; }
+.site-footer { border-top:1px solid var(--border); background:#fff; }
+.footer-inner { display:flex; align-items:center; justify-content:space-between; gap:22px; padding-top:24px; padding-bottom:24px; flex-wrap:wrap; }
+.footer-inner p { margin:3px 0 0; }
+.footer-inner nav { display:flex; flex-wrap:wrap; gap:16px; font-size:.9rem; font-weight:600; }
+@media (max-width:640px) { .footer-inner { align-items:flex-start; flex-direction:column; gap:12px; } .catalog-tools { align-items:flex-start; } }

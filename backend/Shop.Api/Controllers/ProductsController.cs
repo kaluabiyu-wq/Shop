@@ -17,7 +17,8 @@ public class ProductsController(AppDbContext db) : ControllerBase
         [FromQuery] int? categoryId,
         [FromQuery] string sort = "newest",
         [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 12)
+        [FromQuery] int pageSize = 12,
+        [FromQuery] bool inStockOnly = false)
     {
         page = Math.Max(page, 1);
         pageSize = Math.Clamp(pageSize, 1, 50);
@@ -32,6 +33,10 @@ public class ProductsController(AppDbContext db) : ControllerBase
 
         if (categoryId.HasValue)
             query = query.Where(p => p.CategoryId == categoryId.Value);
+
+        // Apply stock filtering before counting and pagination so results stay accurate.
+        if (inStockOnly)
+            query = query.Where(p => p.Stock > 0);
 
         query = sort switch
         {
