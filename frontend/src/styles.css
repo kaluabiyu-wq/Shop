@@ -242,3 +242,23 @@ td.actions { text-align: right; }
   .cart-actions { justify-content: flex-start; }
   .shipping-progress { margin-top: 4px; }
 }
+
+/* Storefront improvements: editorial hero, wishlist, and catalogue controls */
+.shop-hero { display:flex; align-items:center; justify-content:space-between; gap:24px; padding:clamp(26px,5vw,54px); margin:0 0 32px; border:1px solid #dce7dc; border-radius:22px; background:linear-gradient(120deg,#e8f1e8 0%,#f8f5e9 100%); overflow:hidden; }
+.shop-hero h1 { max-width:620px; margin:8px 0 10px; font-size:clamp(2rem,4.5vw,3.35rem); }
+.shop-hero p { margin:0; color:var(--muted); max-width:520px; }
+.eyebrow { color:var(--accent); font-size:.75rem; letter-spacing:.13em; font-weight:800; }
+.hero-mark { display:grid; place-items:center; width:clamp(78px,13vw,150px); aspect-ratio:1; flex-shrink:0; border-radius:50%; color:#fff; background:var(--accent); font-size:clamp(2.5rem,6vw,5rem); box-shadow:0 12px 35px #176b522b; }
+.catalog-heading { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:16px; }
+.catalog-heading h1,.catalog-heading h2 { margin-bottom:0; }
+.stock-filter { display:flex; flex-direction:row; align-items:center; gap:8px; white-space:nowrap; }
+.stock-filter input { width:18px; height:18px; margin:0; accent-color:var(--accent); }
+.results-note { margin-top:20px; }
+.product-card { position:relative; }
+.wishlist-toggle { position:absolute; z-index:2; top:12px; right:12px; display:grid; place-items:center; width:40px; height:40px; border:1px solid #e3e8e3; border-radius:50%; background:#fff; color:#526257; font-size:1.45rem; line-height:1; cursor:pointer; box-shadow:0 3px 12px #172d1c16; transition:transform .15s ease,color .15s ease; }
+.wishlist-toggle:hover { transform:scale(1.06); color:#b42332; }
+.wishlist-toggle.is-saved { color:#b42332; }
+.empty-state { text-align:center; padding:clamp(36px,7vw,76px) 20px; background:var(--surface); border:1px solid var(--border); border-radius:18px; }
+.empty-icon { font-size:3.5rem; color:var(--accent); line-height:1.2; }
+.empty-state p { margin:0 auto 20px; }
+@media (max-width:640px) { .shop-hero { padding:25px 20px; } .hero-mark { width:64px; } .catalog-heading { align-items:flex-start; } .stock-filter { white-space:normal; } }

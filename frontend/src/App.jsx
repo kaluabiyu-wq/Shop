@@ -8,6 +8,8 @@ import Login from './pages/Login.jsx';
 import Register from './pages/Register.jsx';
 import Orders from './pages/Orders.jsx';
 import Admin from './pages/Admin.jsx';
+import { WishlistProvider } from './context/WishlistContext.jsx';
+import Wishlist from './pages/Wishlist.jsx';
 
 function NotFound() {
   return (
@@ -20,13 +22,15 @@ function NotFound() {
 
 export default function App() {
   return (
-    <>
+    <WishlistProvider>
+      <>
       <Navbar />
       <main>
         <Routes>
           <Route path="/" element={<Products />} />
           <Route path="/products/:id" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route
@@ -48,6 +52,7 @@ export default function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
-    </>
+      </>
+    </WishlistProvider>
   );
 }

@@ -1,11 +1,13 @@
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useCart } from '../context/CartContext.jsx';
+import { useWishlist } from '../context/WishlistContext.jsx';
 import { useState } from 'react';
 
 export default function Navbar() {
   const { user, isAdmin, logout } = useAuth();
   const { count } = useCart();
+  const wishlist = useWishlist();
   const navigate = useNavigate();
   const [language, setLanguage] = useState(() => localStorage.getItem('shop_language') || 'en');
   function changeLanguage(next) { setLanguage(next); localStorage.setItem('shop_language', next); document.documentElement.lang = next; document.documentElement.classList.toggle('ethiopic-font', next === 'am'); }
@@ -28,6 +30,7 @@ export default function Navbar() {
           </NavLink>
           {user && <NavLink to="/orders">{language === 'am' ? 'ትዕዛዞቼ' : 'My orders'}</NavLink>}
           {isAdmin && <NavLink to="/admin">{language === 'am' ? 'አስተዳዳሪ' : 'Admin'}</NavLink>}
+          <NavLink to="/wishlist">{language === 'am' ? 'የተቀመጡ' : 'Saved'}{wishlist.items.length > 0 && <span className="cart-count">{wishlist.items.length}</span>}</NavLink>
           <NavLink to="/cart">
             {language === 'am' ? 'ጋሪ' : 'Cart'}
             {count > 0 && <span className="cart-count">{count}</span>}

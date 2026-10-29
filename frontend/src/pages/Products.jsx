@@ -11,6 +11,7 @@ export default function Products() {
   const [query, setQuery] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [sort, setSort] = useState('newest');
+  const [inStockOnly, setInStockOnly] = useState(false);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -46,7 +47,11 @@ export default function Products() {
 
   return (
     <div className="container">
-      <h1>Products</h1>
+      <section className="shop-hero">
+        <div><span className="eyebrow">MADE TO BE DISCOVERED</span><h1>Find something you love.</h1><p>Explore clothing, accessories, and handcrafted Ethiopian style.</p></div>
+        <div className="hero-mark" aria-hidden="true">✦</div>
+      </section>
+      <div className="catalog-heading"><h2>Shop all products</h2><span className="muted small">{loading ? 'Updating catalogue…' : `${data.totalCount} item${data.totalCount === 1 ? '' : 's'}`}</span></div>
 
       <div className="filters">
         <input
@@ -90,15 +95,17 @@ export default function Products() {
 
       {loading ? (
         <p className="muted">Loading products…</p>
-      ) : data.items.length === 0 ? (
+      ) : data.items.filter((p) => !inStockOnly || Number(p.stock) > 0).length === 0 ? (
         <p className="muted">No products match your search.</p>
       ) : (
         <div className="grid">
-          {data.items.map((p) => (
+          {data.items.filter((p) => !inStockOnly || Number(p.stock) > 0).map((p) => (
             <ProductCard key={p.id} product={p} />
           ))}
         </div>
       )}
+
+      {!loading && data.items.length > 0 && <p className="muted small results-note">Showing {data.items.length} of {data.totalCount} products · Prices and availability may change.</p>}
 
       {totalPages > 1 && (
         <div className="pagination">
