@@ -2,10 +2,15 @@ import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext.jsx';
 import { money } from '../utils.js';
 import { useWishlist } from '../context/WishlistContext.jsx';
+import { useCompare } from '../context/CompareContext.jsx';
+import { useState } from 'react';
 
 export default function ProductCard({ product }) {
   const { add } = useCart();
   const wishlist = useWishlist();
+  const comparison = useCompare();
+  const [compareMessage, setCompareMessage] = useState('');
+  const isCompared = comparison.has(product.id);
   const saved = wishlist.has(product.id);
   const soldOut = product.stock === 0;
   const onSale = product.salePrice != null && Number(product.salePrice) < Number(product.price);
@@ -36,6 +41,10 @@ export default function ProductCard({ product }) {
           <button className="btn btn-sm" disabled={soldOut} onClick={() => add(product, 1)}>
             {soldOut ? 'Sold out' : 'Add to cart'}
           </button>
+        </div>
+        <div className="product-card-extra">
+          <button type="button" className={`btn btn-ghost btn-sm ${isCompared ? 'compare-selected' : ''}`} aria-pressed={isCompared} onClick={() => { const result = comparison.toggle(product); setCompareMessage(result.limitReached ? 'Compare up to 4 products.' : result.added ? 'Added to comparison.' : 'Removed from comparison.'); }}>{isCompared ? '✓ Comparing' : '⇄ Compare'}</button>
+          {compareMessage && <span className="muted small" role="status">{compareMessage}</span>}
         </div>
       </div>
     </article>

@@ -11,6 +11,7 @@ import Admin from './pages/Admin.jsx';
 import { WishlistProvider } from './context/WishlistContext.jsx';
 import Wishlist from './pages/Wishlist.jsx';
 import Help from './pages/Help.jsx';
+import Compare from './pages/Compare.jsx';
 
 function NotFound() {
   return (
@@ -32,6 +33,7 @@ export default function App() {
           <Route path="/products/:id" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/wishlist" element={<Wishlist />} />
+          <Route path="/compare" element={<Compare />} />
           <Route path="/help" element={<Help />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
