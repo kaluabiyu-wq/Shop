@@ -52,9 +52,31 @@ export const categories = {
   list: () => request('/categories'),
 };
 
+function normalizeProduct(product) {
+  if (!product || typeof product !== 'object') return product;
+  // ASP.NET normally serializes DTO Id as `id`; accept common legacy/cased
+  // variants too so a product link can never silently become /products/undefined.
+  const id = product.id ?? product.Id ?? product.productId ?? product.ProductId;
+  return id == null ? product : { ...product, id };
+}
+
 export const products = {
-  list: (params = {}) => request(`/products${qs(params)}`),
-  get: (id) => request(`/products/${id}`),
+  list: async (params = {}) => {
+    const result = await request(`/products${qs(params)}`);
+    if (Array.isArray(result)) return result.map(normalizeProduct);
+    return result && Array.isArray(result.items)
+      ? { ...result, items: result.items.map(normalizeProduct) }
+      : result;
+  },
+  get: (id) => {
+    const safeId = String(id ?? '').trim();
+    if (!/^\\d+$/.test(safeId) || Number(safeId) < 1) {
+      const error = new Error('Invalid product ID. Please return to the catalogue and choose a product.');
+      error.status = 400;
+      return Promise.reject(error);
+    }
+    return request(`/products/${encodeURIComponent(safeId)}`).then(normalizeProduct);
+  },
   create: (data) => request('/products', { method: 'POST', body: data }),
   update: (id, data) => request(`/products/${id}`, { method: 'PUT', body: data }),
   remove: (id) => request(`/products/${id}`, { method: 'DELETE' }),

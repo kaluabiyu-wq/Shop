@@ -19,10 +19,21 @@ export default function ProductDetail() {
   useEffect(() => {
     setProduct(null);
     setError('');
+    if (!id || !/^\d+$/.test(id) || Number(id) < 1) {
+      setError('Invalid product link. Please return to the catalogue and choose a product.');
+      return undefined;
+    }
+    let cancelled = false;
     api.products
       .get(id)
-      .then((item) => { setProduct(item); rememberProduct(item.id); })
-      .catch((e) => setError(e.status === 404 ? 'Product not found.' : e.message));
+      .then((item) => {
+        if (cancelled) return;
+        if (!item?.id) { setError('Product data is incomplete. Please return to the catalogue.'); return; }
+        setProduct(item);
+        rememberProduct(item.id);
+      })
+      .catch((e) => { if (!cancelled) setError(e.status === 404 ? 'Product not found.' : e.message); });
+    return () => { cancelled = true; };
   }, [id]);
 
   if (error)

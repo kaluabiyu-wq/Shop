@@ -1,10 +1,14 @@
 import { useEffect, useState } from 'react';
 import * as api from '../api.js';
 import { formatDate, money } from '../utils.js';
+import { useCart } from '../context/CartContext.jsx';
 
 export default function Orders() {
   const [orders, setOrders] = useState(null);
   const [error, setError] = useState('');
+  const [reordering, setReordering] = useState(null);
+  const [notice, setNotice] = useState('');
+  const cart = useCart();
 
   useEffect(() => {
     api.orders
@@ -12,6 +16,27 @@ export default function Orders() {
       .then(setOrders)
       .catch((e) => setError(e.message));
   }, []);
+
+  async function reorder(order) {
+    setError(''); setNotice(''); setReordering(order.id);
+    let added = 0, unavailable = 0;
+    try {
+      for (const line of order.items || []) {
+        try {
+          const product = await api.products.get(line.productId);
+          if (Number(product.stock ?? 0) > 0 && cart.add(product, Number(line.quantity) || 1)) added += 1;
+          else unavailable += 1;
+        } catch { unavailable += 1; }
+      }
+      setNotice(`${added} item${added === 1 ? '' : 's'} added to your cart${unavailable ? `; ${unavailable} unavailable or out of stock` : ''}.`);
+    } finally { setReordering(null); }
+  }
+
+  function printReceipt(orderId) {
+    document.body.dataset.printOrder = String(orderId);
+    window.print();
+    delete document.body.dataset.printOrder;
+  }
 
   async function cancel(id) {
     setError('');
@@ -27,12 +52,13 @@ export default function Orders() {
     <div className="container">
       <h1>My orders</h1>
       {error && <div className="alert alert-error">{error}</div>}
+      {notice && <div className="alert alert-success" role="status">{notice}</div>}
       {!orders && !error && <p className="muted">Loading…</p>}
       {orders && orders.length === 0 && <p className="muted">You haven't placed any orders yet.</p>}
 
       <div className="stack">
         {orders?.map((o) => (
-          <section className="order" key={o.id}>
+          <section className={`order ${String(o.id) === String(window.document.body.dataset.printOrder) ? 'print-selected' : ''}`} key={o.id}>
             <header className="order-header">
               <div>
                 <strong>Order #{o.id}</strong>
@@ -58,8 +84,12 @@ export default function Orders() {
             </div>
             <footer className="order-footer">
               <span className="muted small">{o.deliveryMethod === 'Pickup' ? 'Collection: shop pickup' : `Landmark: ${o.landmark || '—'}`}</span>
-              <div className="row">
+              <div className="row order-actions">
                 <strong>{money(o.total)}</strong>
+                <button className="btn btn-ghost btn-sm" onClick={() => printReceipt(o.id)}>Print receipt</button>
+                <button className="btn btn-primary btn-sm" onClick={() => reorder(o)} disabled={reordering === o.id}>
+                  {reordering === o.id ? 'Adding…' : 'Buy again'}
+                </button>
                 {o.status === 'Pending' && (
                   <button className="btn btn-ghost btn-sm" onClick={() => cancel(o.id)}>
                     Cancel order

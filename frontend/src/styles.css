@@ -303,3 +303,14 @@ td.actions { text-align: right; }
 .compare-out-stock { color:var(--danger); font-weight:700; }
 .compare-hint { margin-top:16px; }
 @media (max-width:640px) { .compare-table th,.compare-table td { padding:10px; } }
+
+/* Print only the selected order as a clean receipt. */
+@media print {
+  body[data-print-order] .site-header, body[data-print-order] .site-footer,
+  body[data-print-order] .order-actions, body[data-print-order] .site-nav,
+  body[data-print-order] .btn { display: none !important; }
+  body[data-print-order] { background: #fff !important; color: #111 !important; }
+  body[data-print-order] .container { max-width: 100% !important; padding: 0 !important; }
+  body[data-print-order] .order:not(.print-selected) { display: none !important; }
+  body[data-print-order] .order.print-selected { break-inside: avoid; border: 1px solid #bbb !important; box-shadow: none !important; }
+}

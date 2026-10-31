@@ -6,7 +6,16 @@ const KEY = 'shop_wishlist';
 function readWishlist() {
   try {
     const value = JSON.parse(localStorage.getItem(KEY));
-    return Array.isArray(value) ? value : [];
+    if (!Array.isArray(value)) return [];
+    // Discard stale/corrupt entries from older builds that have no usable product ID.
+    return value
+      .map((item) => {
+        if (!item || typeof item !== 'object') return null;
+        const id = item.id ?? item.Id ?? item.productId ?? item.ProductId;
+        return id != null && String(id).trim() !== '' ? { ...item, id } : null;
+      })
+      .filter(Boolean)
+      .filter((item, index, all) => all.findIndex((other) => String(other.id) === String(item.id)) === index);
   } catch { return []; }
 }
 
@@ -19,11 +28,15 @@ export function WishlistProvider({ children }) {
   const value = useMemo(() => ({
     items,
     has: (id) => items.some((item) => String(item.id) === String(id)),
-    toggle: (product) => setItems((prev) =>
-      prev.some((item) => String(item.id) === String(product.id))
-        ? prev.filter((item) => String(item.id) !== String(product.id))
-        : [...prev, { id: product.id, name: product.name, price: product.price, salePrice: product.salePrice, imageUrl: product.imageUrl, categoryName: product.categoryName, categoryId: product.categoryId, stock: product.stock }]
-    ),
+    toggle: (product) => {
+      const id = product?.id ?? product?.Id ?? product?.productId ?? product?.ProductId;
+      if (id == null || String(id).trim() === '') return;
+      setItems((prev) =>
+      prev.some((item) => String(item.id) === String(id))
+        ? prev.filter((item) => String(item.id) !== String(id))
+        : [...prev, { id, name: product.name, price: product.price, salePrice: product.salePrice, imageUrl: product.imageUrl, categoryName: product.categoryName, categoryId: product.categoryId, stock: product.stock }]
+      );
+    },
     remove: (id) => setItems((prev) => prev.filter((item) => String(item.id) !== String(id))),
   }), [items]);
 

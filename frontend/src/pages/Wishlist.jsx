@@ -4,8 +4,9 @@ import { useCart } from '../context/CartContext.jsx';
 import { money } from '../utils.js';
 
 export default function Wishlist() {
-  const { items, remove } = useWishlist();
+  const { items: savedItems, remove } = useWishlist();
   const { add } = useCart();
+  const items = savedItems.filter((item) => item && item.id != null && String(item.id).trim() !== '');
   return <div className="container">
     <div className="catalog-heading"><div><span className="eyebrow">YOUR PERSONAL COLLECTION</span><h1>Saved items</h1></div><span className="muted">{items.length} saved</span></div>
     {!items.length ? <div className="empty-state"><div className="empty-icon">♡</div><h2>Your wishlist is waiting</h2><p className="muted">Save products you love and come back to them anytime.</p><Link className="btn" to="/">Explore products</Link></div> :
