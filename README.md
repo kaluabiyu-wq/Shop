@@ -18,6 +18,7 @@ and an admin area to manage products and orders.
 - Oversell protection: PostgreSQL `xmin` optimistic concurrency on products
 - Admin: create/edit/delete products, view all orders, change order status
 - Recommendations: "Recommended for you" (recently viewed + best-sellers) and "You may also like" (same category, closest price) shown in an animated 3D coverflow carousel with pointer-tilt cards (respects `prefers-reduced-motion`)
+- 3D + motion: rotating 3D product ring in the hero, pointer-tilt product cards with glare, 3D tilt + hover-zoom on the product image, staggered card entrance, skeleton loading, page transitions, fly-to-cart animation with cart badge bounce (all disabled for `prefers-reduced-motion`; CSS/JS only, no extra dependencies)
 - Validation (DataAnnotations), ProblemDetails error responses, role-protected endpoints
 
 ## Project layout

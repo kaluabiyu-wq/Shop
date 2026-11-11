@@ -4,8 +4,10 @@ import { money } from '../utils.js';
 import { useWishlist } from '../context/WishlistContext.jsx';
 import { useCompare } from '../context/CompareContext.jsx';
 import { useState } from 'react';
+import { flyToCart, useTilt } from '../motion.js';
 
-export default function ProductCard({ product }) {
+export default function ProductCard({ product, index = 0 }) {
+  const tilt = useTilt(6);
   const { add } = useCart();
   const productId = product?.id ?? product?.Id ?? product?.productId ?? product?.ProductId;
   const validProductId = productId != null && String(productId).trim() !== '';
@@ -19,7 +21,7 @@ export default function ProductCard({ product }) {
   const discount = onSale ? Math.round((1 - Number(product.salePrice) / Number(product.price)) * 100) : 0;
 
   return (
-    <article className="product-card">
+    <article className="product-card tilt-3d card-reveal" ref={tilt.ref} {...tilt.handlers} style={{ '--i': Math.min(index, 12) }}>
       <Link to={validProductId ? `/products/${encodeURIComponent(productId)}` : '/'} className="product-image">
         {onSale && <span className="sale-badge">-{discount}%</span>}
         {soldOut && <span className="stock-badge">Out of stock</span>}
@@ -28,6 +30,7 @@ export default function ProductCard({ product }) {
         ) : (
           <div className="image-placeholder">No image</div>
         )}
+      <span className="card-glare" aria-hidden="true" />
       </Link>
       <button type="button" className={`wishlist-toggle ${saved ? 'is-saved' : ''}`} aria-label={saved ? `Remove ${product.name} from wishlist` : `Save ${product.name} to wishlist`} aria-pressed={saved} onClick={() => validProductId && wishlist.toggle({ ...product, id: productId })}>{saved ? '♥' : '♡'}</button>
       <div className="product-body">
@@ -40,7 +43,7 @@ export default function ProductCard({ product }) {
             <strong className={onSale ? 'sale-price' : ''}>{money(onSale ? product.salePrice : product.price)}</strong>
             {onSale && <del className="regular-price">{money(product.price)}</del>}
           </div>
-          <button className="btn btn-sm" disabled={soldOut} onClick={() => validProductId && add({ ...product, id: productId }, 1)}>
+          <button className="btn btn-sm" disabled={soldOut} onClick={(e) => { if (validProductId && add({ ...product, id: productId }, 1)) flyToCart(e.currentTarget); }}>
             {soldOut ? 'Sold out' : 'Add to cart'}
           </button>
         </div>

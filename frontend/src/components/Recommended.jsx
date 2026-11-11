@@ -4,6 +4,7 @@ import * as api from '../api.js';
 import { useCart } from '../context/CartContext.jsx';
 import { useWishlist } from '../context/WishlistContext.jsx';
 import { money } from '../utils.js';
+import { flyToCart } from '../motion.js';
 
 const VIEWED_KEY = 'shop_recently_viewed';
 
@@ -79,7 +80,7 @@ function TiltCard({ product, active, onSelect }) {
             {onSale && <del className="regular-price">{money(product.price)}</del>}
           </div>
           <div className="rec-actions">
-            <button type="button" className="btn btn-sm" disabled={product.stock === 0 || !active} onClick={() => add(product, 1)}>
+            <button type="button" className="btn btn-sm" disabled={product.stock === 0 || !active} onClick={(e) => { if (add(product, 1)) flyToCart(e.currentTarget); }}>
               {product.stock === 0 ? 'Sold out' : 'Add to cart'}
             </button>
             <button

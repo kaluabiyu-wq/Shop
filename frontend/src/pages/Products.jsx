@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import * as api from '../api.js';
 import ProductCard from '../components/ProductCard.jsx';
 import RecentlyViewed from '../components/RecentlyViewed.jsx';
+import Hero3D from '../components/Hero3D.jsx';
+import ProductSkeleton from '../components/ProductSkeleton.jsx';
 import Recommended from '../components/Recommended.jsx';
 
 const PAGE_SIZE = 8;
@@ -51,7 +53,7 @@ export default function Products() {
     <div className="container">
       <section className="shop-hero">
         <div><span className="eyebrow">MADE TO BE DISCOVERED</span><h1>Find something you love.</h1><p>Explore clothing, accessories, and handcrafted Ethiopian style.</p></div>
-        <div className="hero-mark" aria-hidden="true">✦</div>
+        <Hero3D />
       </section>
       <div className="catalog-heading"><h2>Shop all products</h2><span className="muted small">{loading ? 'Updating catalogue…' : `${data.totalCount} item${data.totalCount === 1 ? '' : 's'}`}</span></div>
 
@@ -100,13 +102,13 @@ export default function Products() {
       {error && <div className="alert alert-error">{error}</div>}
 
       {loading ? (
-        <p className="muted">Loading products…</p>
+        <ProductSkeleton count={PAGE_SIZE} />
       ) : data.items.length === 0 ? (
         <p className="muted">No products match your search.</p>
       ) : (
         <div className="grid">
-          {data.items.map((p) => (
-            <ProductCard key={p.id} product={p} />
+          {data.items.map((p, i) => (
+            <ProductCard key={p.id} product={p} index={i} />
           ))}
         </div>
       )}

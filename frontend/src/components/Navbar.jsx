@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { useCart } from '../context/CartContext.jsx';
 import { useWishlist } from '../context/WishlistContext.jsx';
 import { useCompare } from '../context/CompareContext.jsx';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function Navbar() {
   const { user, isAdmin, logout } = useAuth();
@@ -11,6 +11,13 @@ export default function Navbar() {
   const wishlist = useWishlist();
   const comparison = useCompare();
   const navigate = useNavigate();
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
   const [language, setLanguage] = useState(() => localStorage.getItem('shop_language') || 'en');
   function changeLanguage(next) { setLanguage(next); localStorage.setItem('shop_language', next); document.documentElement.lang = next; document.documentElement.classList.toggle('ethiopic-font', next === 'am'); }
 
@@ -20,7 +27,7 @@ export default function Navbar() {
   }
 
   return (
-    <header className="navbar">
+    <header className={`navbar ${scrolled ? 'is-scrolled' : ''}`}>
       <div className="container nav-inner">
         <Link to="/" className="brand">
           Shop
@@ -35,9 +42,9 @@ export default function Navbar() {
           <NavLink to="/help">{language === 'am' ? 'እገዛ' : 'Help'}</NavLink>
           <NavLink to="/wishlist">{language === 'am' ? 'የተቀመጡ' : 'Saved'}{wishlist.items.length > 0 && <span className="cart-count">{wishlist.items.length}</span>}</NavLink>
           <NavLink to="/compare">Compare{comparison.count > 0 && <span className="cart-count">{comparison.count}</span>}</NavLink>
-          <NavLink to="/cart">
+          <NavLink to="/cart" data-cart-target>
             {language === 'am' ? 'ጋሪ' : 'Cart'}
-            {count > 0 && <span className="cart-count">{count}</span>}
+            {count > 0 && <span key={count} className="cart-count cart-bump">{count}</span>}
           </NavLink>
           {user ? (
             <>

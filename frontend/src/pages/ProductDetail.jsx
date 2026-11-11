@@ -6,6 +6,7 @@ import { useWishlist } from '../context/WishlistContext.jsx';
 import { money } from '../utils.js';
 import { rememberProduct } from '../components/RecentlyViewed.jsx';
 import RecentlyViewed from '../components/RecentlyViewed.jsx';
+import { flyToCart, useTilt } from '../motion.js';
 import Recommended from '../components/Recommended.jsx';
 
 export default function ProductDetail() {
@@ -16,6 +17,7 @@ export default function ProductDetail() {
   const [qty, setQty] = useState(1);
   const [error, setError] = useState('');
   const [added, setAdded] = useState(false);
+  const tilt = useTilt(5);
 
   useEffect(() => {
     setProduct(null);
@@ -50,8 +52,9 @@ export default function ProductDetail() {
   const onSale = product.salePrice != null && Number(product.salePrice) < Number(product.price);
   const discount = onSale ? Math.round((1 - Number(product.salePrice) / Number(product.price)) * 100) : 0;
 
-  function handleAdd() {
-    add(product, qty);
+  function handleAdd(e) {
+    if (!add(product, qty)) return;
+    flyToCart(e.currentTarget);
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
   }
@@ -60,12 +63,13 @@ export default function ProductDetail() {
     <div className="container">
       <Link to="/">← Back to products</Link>
       <div className="detail">
-        <div className="detail-image">
+        <div className="detail-image tilt-3d" ref={tilt.ref} {...tilt.handlers}>
           {product.imageUrl ? (
             <img src={product.imageUrl} alt={product.name} />
           ) : (
             <div className="image-placeholder">No image</div>
           )}
+          <span className="card-glare" aria-hidden="true" />
         </div>
         <div>
           <span className="muted small">{product.categoryName}</span>

@@ -1,4 +1,4 @@
-import { Link, Route, Routes } from 'react-router-dom';
+import { Link, Route, Routes, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import Products from './pages/Products.jsx';
@@ -23,12 +23,14 @@ function NotFound() {
 }
 
 export default function App() {
+  const location = useLocation();
   return (
     <WishlistProvider>
       <>
       <Navbar />
       <main>
-        <Routes>
+        <div key={location.pathname} className="page-enter">
+        <Routes location={location}>
           <Route path="/" element={<Products />} />
           <Route path="/products/:id" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
@@ -55,6 +57,7 @@ export default function App() {
           />
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </div>
       </main>
       <footer className="site-footer">
         <div className="container footer-inner">
