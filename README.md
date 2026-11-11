@@ -17,6 +17,7 @@ and an admin area to manage products and orders.
   locked in at purchase time; customers can cancel pending orders (stock is restored)
 - Oversell protection: PostgreSQL `xmin` optimistic concurrency on products
 - Admin: create/edit/delete products, view all orders, change order status
+- Recommendations: "Recommended for you" (recently viewed + best-sellers) and "You may also like" (same category, closest price) shown in an animated 3D coverflow carousel with pointer-tilt cards (respects `prefers-reduced-motion`)
 - Validation (DataAnnotations), ProblemDetails error responses, role-protected endpoints
 
 ## Project layout
@@ -96,6 +97,8 @@ From then on the app applies migrations automatically at startup.
 | GET    | /api/categories             | public   |
 | GET    | /api/products               | public (`q`, `categoryId`, `sort`, `page`, `pageSize`) |
 | GET    | /api/products/{id}          | public   |
+| GET    | /api/products/{id}/recommendations | public (`count`) |
+| GET    | /api/products/recommended   | public (`ids`, `count`) |
 | POST / PUT / DELETE | /api/products[/{id}] | admin |
 | POST   | /api/orders                 | user (checkout) |
 | GET    | /api/orders/mine            | user     |

@@ -70,12 +70,20 @@ export const products = {
   },
   get: (id) => {
     const safeId = String(id ?? '').trim();
-    if (!/^\\d+$/.test(safeId) || Number(safeId) < 1) {
+    if (!/^\d+$/.test(safeId) || Number(safeId) < 1) {
       const error = new Error('Invalid product ID. Please return to the catalogue and choose a product.');
       error.status = 400;
       return Promise.reject(error);
     }
     return request(`/products/${encodeURIComponent(safeId)}`).then(normalizeProduct);
+  },
+  recommendations: async (id, count = 8) => {
+    const result = await request(`/products/${encodeURIComponent(id)}/recommendations${qs({ count })}`);
+    return Array.isArray(result) ? result.map(normalizeProduct) : [];
+  },
+  recommended: async (ids = [], count = 8) => {
+    const result = await request(`/products/recommended${qs({ ids: ids.join(','), count })}`);
+    return Array.isArray(result) ? result.map(normalizeProduct) : [];
   },
   create: (data) => request('/products', { method: 'POST', body: data }),
   update: (id, data) => request(`/products/${id}`, { method: 'PUT', body: data }),

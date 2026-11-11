@@ -6,6 +6,7 @@ import { useWishlist } from '../context/WishlistContext.jsx';
 import { money } from '../utils.js';
 import { rememberProduct } from '../components/RecentlyViewed.jsx';
 import RecentlyViewed from '../components/RecentlyViewed.jsx';
+import Recommended from '../components/Recommended.jsx';
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -106,6 +107,7 @@ export default function ProductDetail() {
           )}
         </div>
       </div>
+      <Recommended productId={product.id} title="You may also like" subtitle="Similar items in style and price." />
       <RecentlyViewed excludeId={product.id} />
     </div>
   );

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import * as api from '../api.js';
 import ProductCard from '../components/ProductCard.jsx';
 import RecentlyViewed from '../components/RecentlyViewed.jsx';
+import Recommended from '../components/Recommended.jsx';
 
 const PAGE_SIZE = 8;
 
@@ -129,6 +130,7 @@ export default function Products() {
           </button>
         </div>
       )}
+      <Recommended title="Recommended for you" subtitle="Picked from what you've viewed and what's popular." />
       <RecentlyViewed />
     </div>
   );
